@@ -1,6 +1,7 @@
 # jiyu-cloud-learning
 
-This template should help get you started developing with Vue 3 in Vite.
+一个vue+element做的demo ai对话+学习规划+用户状态管理+语音聊天+智能助手
+目前是一个简单的纯前端项目
 
 ## Recommended IDE Setup
 
