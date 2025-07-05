@@ -17,28 +17,36 @@ export const authAPI = {
   // 用户登录
   async login(credentials: LoginCredentials): Promise<LoginResponse> {
     try {
-      const response = await api.post('/users/login', {
-        userName: credentials.username,  // 后端使用userName字段
-        password: credentials.password
+        // 构造 x-www-form-urlencoded 数据
+    const formData = new URLSearchParams()
+    formData.append('username', credentials.username)
+    formData.append('password', credentials.password)
+
+      const response = await api.post('/auth/token', formData, {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        }
       })
-      
+      //.then((res)=>console.log('Login response:', res));
+      console.log('Login response:', response.data.access_token)
+
       // 后端返回格式：{"message": "login success", "token": jwt_token}
-      if (response.data.message === "login success" && response.data.token) {
+      if (response.data.access_token) {
         return {
-          message: response.data.message,
-          token: response.data.token,
+          message: '登录成功',
+          token: response.data.access_token,
           success: true
         }
       } else {
         return {
-          message: response.data.message || '登录失败',
+          message: '登录失败',
           success: false
         }
       }
     } catch (error: any) {
       console.error('Login error:', error)
       return {
-        message: error.response?.data?.message || '登录失败',
+        message: '登录失败',
         success: false
       }
     }
@@ -47,11 +55,12 @@ export const authAPI = {
   // 用户注册
   async register(data: RegisterData): Promise<RegisterResponse> {
     try {
-      const response = await api.post('/users/signup', {
-        userName: data.username,  // 后端使用userName字段
+
+      const response = await api.post('/auth/signup', {
+        username: data.username,  // 后端使用userName字段
         password: data.password
       })
-      
+
       // 后端返回格式：{"message": "signup success"} 或 {"message": "duplicate userName"}
       if (response.data.message === "signup success") {
         return {
@@ -80,15 +89,16 @@ export const authAPI = {
       if (!token) {
         return { user: null, success: false }
       }
-      
-      const response = await api.get('/users/profile', {
+
+      const response = await api.get('/auth/users/me', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       })
       // 兼容后端返回格式，避免undefined.message报错
-      if ((response.data && response.data.message === 'success' && response.data.user) || (response.data && response.data.message === 'success' && response.data.user)) {
-        return { user: response.data.user, success: true }
+      if (response.data &&  response.data.username) {
+        //localStorage.setItem('jiyu_user', JSON.stringify(response.data.username))
+        return { user: response.data.username, success: true }
       } else {
         return { user: null, success: false }
       }

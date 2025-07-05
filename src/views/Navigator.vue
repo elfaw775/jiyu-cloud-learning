@@ -8,56 +8,7 @@
     <div class="background"></div>
 
     <!-- 网站头部 -->
-    <header class="navigator-header">
-      <div class="main">
-        <!-- 菜单切换按钮 -->
-        <el-button 
-          class="nav-btn" 
-          icon="Menu" 
-          @click="toggleSidebar"
-        />
-
-        <h1 class="logo">
-          <router-link to="/materials">
-            <img src="@/assets/logo.svg" alt="logo">
-            <span>学习资料</span>
-          </router-link>
-        </h1>
-
-        <!-- 右键菜单（由Vue控制，取代原生右键菜单） -->
-        <div 
-          v-show="showContextMenu" 
-          class="context-menu" 
-          :style="contextMenuStyle"
-        >
-          <ul>
-            <li @click="copyLink"><el-icon><DocumentCopy /></el-icon>复制链接</li>
-            <li @click="openInNewTab"><el-icon><Link /></el-icon>在新标签页打开</li>
-          </ul>
-        </div>
-
-        <!-- 导航菜单 -->
-        <nav class="nav">
-          <ul>
-            <li>
-              <router-link to="/dashboard" active-class="active">
-                <el-icon><House /></el-icon> 首页
-              </router-link>
-            </li>
-            <li id="favorites-btn">
-              <a href="#favorites" @click="scrollToSection('favorites')">
-                <el-icon><Star /></el-icon> 收藏
-              </a>
-            </li>
-            <li id="settings-btn">
-              <a href="#settings" @click="scrollToSection('settings')">
-                <el-icon><Setting /></el-icon> 设置
-              </a>
-            </li>
-          </ul>
-        </nav>
-      </div>
-    </header>
+    
 
     <!-- 主要内容区域 -->
     <div id="content" class="navigator-content">

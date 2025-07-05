@@ -15,6 +15,7 @@ const api: AxiosInstance = axios.create({
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
+    //'content-type': 'application/x-www-form-urlencoded',
   },
 })
 

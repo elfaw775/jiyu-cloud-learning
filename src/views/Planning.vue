@@ -1,7 +1,7 @@
 <template>
   <ScrollContainer class="planning-container" height="100vh">
     <!-- 页面头部 -->
-    <div class="planning-header">
+    <!-- <div class="planning-header">
       <div class="header-content">
         <div class="header-left">
           <h1 class="page-title">
@@ -19,8 +19,8 @@
           </el-button>
         </div>
       </div>
-    </div>
-    
+    </div> -->
+
     <div class="todo-app">
       <h2 class="title">今日待办事项</h2>
 
@@ -146,20 +146,15 @@ onMounted(() => {
 </script>
 
 <style scoped>
-:root {
-  --primary-color: #a4f5ec;
-  --secondary-color: #048d65;
-  --background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-}
-
 .planning-container {
-  background: var(--background);
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   padding: 20px;
+  min-height: 100vh;
 }
 
 .planning-header {
   margin-bottom: 32px;
-  
+
   .header-content {
     display: flex;
     justify-content: space-between;
@@ -170,17 +165,17 @@ onMounted(() => {
     border-radius: 8px;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
   }
-  
+
   .header-left {
     text-align: left;
   }
-  
+
   .header-right {
     flex-shrink: 0;
     display: flex;
     gap: 10px;
   }
-  
+
   .page-title {
     font-size: 28px;
     color: #303133;
@@ -190,7 +185,7 @@ onMounted(() => {
     gap: 8px;
     margin: 0;
   }
-  
+
   .page-subtitle {
     color: #606266;
     margin: 0;
@@ -311,24 +306,24 @@ onMounted(() => {
     margin: 1rem;
     padding: 1.5rem;
   }
-  
+
   .todo-form {
     flex-direction: column;
   }
-  
+
   .todo-button {
     width: 100%;
   }
-  
+
   .item {
     padding: 0.8rem;
     margin: 0.8rem 0;
   }
-  
+
   .title {
     font-size: 2rem;
   }
-  
+
   .controls {
     flex-direction: column;
     gap: 0.5rem;

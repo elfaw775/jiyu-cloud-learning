@@ -12,9 +12,9 @@
           <h1>积语伴学</h1>
           <p>您学习路上的好伴侣</p>
         </div>
-        
+
         <!-- 登录表单 -->
-        <el-form 
+        <el-form
           ref="formRef"
           :model="loginForm"
           :rules="rules"
@@ -29,7 +29,7 @@
               clearable
             />
           </el-form-item>
-          
+
           <el-form-item prop="password">
             <el-input
               v-model="loginForm.password"
@@ -41,13 +41,13 @@
               @keyup.enter="handleLogin"
             />
           </el-form-item>
-          
+
           <el-form-item>
             <el-checkbox v-model="rememberMe">记住我</el-checkbox>
           </el-form-item>
-          
+
           <el-form-item>
-            <el-button 
+            <el-button
               type="primary"
               size="large"
               :loading="authStore.isLoading"
@@ -57,10 +57,10 @@
               登录
             </el-button>
           </el-form-item>
-          
+
           <!-- 开发测试用按钮，用于绕过登录验证 -->
           <el-form-item>
-            <el-button 
+            <el-button
               type="warning"
               size="large"
               @click="devBypassLogin"
@@ -70,13 +70,13 @@
             </el-button>
           </el-form-item>
         </el-form>
-        
+
         <!-- 注册链接 -->
         <div class="login-footer">
           <p>还没有账号？<router-link to="/register" class="register-link">立即注册</router-link></p>
         </div>
       </div>
-      
+
       <!-- 右侧装饰 -->
       <div class="login-decoration">
         <div class="decoration-content">
@@ -126,19 +126,24 @@ const rules: FormRules = {
 
 const handleLogin = async () => {
   if (!formRef.value) return
-  
+
   try {
     const valid = await formRef.value.validate()
     if (!valid) return
-    
+
     const result = await authStore.login({
       username: loginForm.username,
       password: loginForm.password
     })
-    
+
+    console.log(result);
+
     if (result.success) {
       ElMessage.success('登录成功')
-      router.push('/dashboard')
+      console.log(result.message);
+      //localStorage.setItem('jiyu_token', result.message)
+      localStorage.removeItem('jiyu_welcome_shown')
+      router.push('/chat')
     } else {
       ElMessage.error(result.message || '登录失败')
     }
@@ -166,12 +171,14 @@ const devBypassLogin = () => {
     }
   })
   
+
   // 保存到localStorage，使刷新页面后状态仍然保持
   localStorage.setItem('jiyu_token', 'dev-mock-token')
   localStorage.setItem('jiyu_user', JSON.stringify(authStore.user))
-  
+  localStorage.removeItem('jiyu_welcome_shown')
+
   ElMessage.success('测试模式：已绕过登录验证')
-  router.push('/dashboard')
+  router.push('/chat')
 }
 </script>
 
@@ -213,10 +220,10 @@ const devBypassLogin = () => {
 .login-header {
   text-align: center;
   margin-bottom: 40px;
-  
+
   .logo-container {
     margin-bottom: 20px;
-    
+
     .logo-image {
       width: 80px;
       height: 80px;
@@ -224,13 +231,13 @@ const devBypassLogin = () => {
       object-fit: cover;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
       transition: transform 0.3s ease;
-      
+
       &:hover {
         transform: scale(1.05);
       }
     }
   }
-  
+
   h1 {
     font-size: 45px;
     font-weight: 400;
@@ -240,7 +247,7 @@ const devBypassLogin = () => {
     color: rgb(7, 7, 7);
     margin: 20px 0 10px;
   }
-  
+
   p {
     font-size: 14px;
     font-weight: 400;
@@ -263,13 +270,13 @@ const devBypassLogin = () => {
   border-bottom: 2px solid #6ca8f0;
   border-radius: 0;
   box-shadow: none;
-  
+
   .el-input__inner {
     font-size: 17px;
     font-family: 'Courier New', Courier, monospace;
     font-weight: bolder;
     color: black;
-    
+
     &::placeholder {
       font-size: 15px;
       font-family: 'Courier New', Courier, monospace;
@@ -297,7 +304,7 @@ const devBypassLogin = () => {
   position: relative;
   overflow: hidden;
   transition: all 0.4s;
-  
+
   &::before,
   &::after {
     content: "";
@@ -311,23 +318,23 @@ const devBypassLogin = () => {
     background-color: #6ca8f0;
     transition: all 0.4s;
   }
-  
+
   &::before {
     left: -80%;
     transform: translate3d(0, 5em, 0) rotate(-340deg);
   }
-  
+
   &::after {
     right: -80%;
     transform: translate3d(0, 5em, 0) rotate(-390deg);
   }
-  
+
   &:hover,
   &:focus {
     color: white;
     background-color: transparent;
     border-color: #6ca8f0;
-    
+
     &::before,
     &::after {
       transform: none;
@@ -348,20 +355,20 @@ const devBypassLogin = () => {
 .login-footer {
   text-align: center;
   margin-top: 20px;
-  
+
   p {
     color: rgb(7, 7, 7);
     margin: 0;
     font-family: 'Courier New', Courier, monospace;
     opacity: 0.8;
   }
-  
+
   .register-link {
     color: #6ca8f0;
     text-decoration: none;
     font-weight: 500;
     font-family: 'Courier New', Courier, monospace;
-    
+
     &:hover {
       text-decoration: underline;
     }
@@ -374,11 +381,11 @@ const devBypassLogin = () => {
     max-width: 300px;
     min-height: 450px;
   }
-  
+
   .login-form {
     padding: 30px 25px;
   }
-  
+
   .login-header h1 {
     font-size: 36px;
   }

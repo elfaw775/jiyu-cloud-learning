@@ -65,6 +65,7 @@ declare module 'vue' {
     IconSupport: typeof import('./src/components/icons/IconSupport.vue')['default']
     IconTooling: typeof import('./src/components/icons/IconTooling.vue')['default']
     KnowledgeGraph: typeof import('./src/components/knowledge/KnowledgeGraph.vue')['default']
+    MainLayout: typeof import('./src/components/layout/MainLayout.vue')['default']
     ResourceManager: typeof import('./src/components/knowledge/ResourceManager.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

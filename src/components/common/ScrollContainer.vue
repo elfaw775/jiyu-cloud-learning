@@ -130,6 +130,8 @@ onUnmounted(() => {
   max-height: v-bind(maxHeight);
   overflow-y: auto;
   overflow-x: hidden;
+  background: transparent !important;
+  
 }
 
 .scroll-content {

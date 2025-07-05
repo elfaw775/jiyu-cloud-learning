@@ -1,0 +1,34 @@
+/* 全局页面主容器背景透明或半透明 */
+
+.planning-container,
+.chat-container-wide,
+.materials-container,
+.correction-container,
+.daily-practice-container,
+.guidebook-container,
+.navigator-container {
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+
+/* 常见UI组件背景透明或半透明 */
+
+.el-card,
+.el-dialog,
+.el-main,
+.el-header,
+.el-footer,
+.el-aside {
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+
+/* 可选：让 el-table 也透明 */
+
+.el-table,
+.el-table th,
+.el-table td {
+    background: transparent !important;
+}

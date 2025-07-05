@@ -16,7 +16,7 @@ export const useAuthStore = defineStore('auth', {
     isAuthenticated: !!localStorage.getItem('jiyu_token'),
     isLoading: false
   }),
-  
+
   getters: {
     username: (state) => state.user?.username || '',
     avatar: (state) => state.user?.avatar || '',
@@ -24,68 +24,68 @@ export const useAuthStore = defineStore('auth', {
     experience: (state) => state.user?.experience || 0,
     userId: (state) => state.user?.id || ''
   },
-  
+
   actions: {
     async login(credentials: LoginCredentials) {
       this.isLoading = true
       try {
         const response = await authAPI.login(credentials)
-        
+
         if (response.success && response.token) {
           this.token = response.token
           this.isAuthenticated = true
-          
+
           // 保存token到localStorage
           localStorage.setItem('jiyu_token', response.token)
-          
+
           // 获取用户信息
           const userResult = await authAPI.getUserInfo()
           if (userResult.success && userResult.user) {
             this.user = userResult.user
             localStorage.setItem('jiyu_user', JSON.stringify(userResult.user))
           }
-          
-          return { 
-            success: true, 
-            message: response.message || '登录成功' 
+
+          return {
+            success: true,
+            message: response.message || '登录成功'
           }
         } else {
-          return { 
-            success: false, 
-            message: response.message || '登录失败' 
+          return {
+            success: false,
+            message: response.message || '登录失败'
           }
         }
       } catch (error: any) {
-        return { 
-          success: false, 
-          message: error.response?.data?.message || '登录失败' 
+        return {
+          success: false,
+          message: error.response?.data?.message || '登录失败'
         }
       } finally {
         this.isLoading = false
       }
     },
-    
+
     async register(data: RegisterData) {
       this.isLoading = true
       try {
         const response = await authAPI.register(data)
-        return { 
+        return {
           success: response.success,
-          message: response.message 
+          message: response.message
         }
       } catch (error: any) {
-        return { 
-          success: false, 
-          message: error.response?.data?.message || '注册失败' 
+        return {
+          success: false,
+          message: error.response?.data?.message || '注册失败'
         }
       } finally {
         this.isLoading = false
       }
     },
-    
+
     async getUserInfo() {
       if (!this.token) return false
-      
+
       try {
         const result = await authAPI.getUserInfo()
         if (result.success && result.user) {
@@ -103,7 +103,7 @@ export const useAuthStore = defineStore('auth', {
         return false
       }
     },
-    
+
     logout() {
       this.user = null
       this.token = null
@@ -112,7 +112,7 @@ export const useAuthStore = defineStore('auth', {
       localStorage.removeItem('jiyu_user')
       console.log('Logout completed, localStorage cleared')
     },
-    
+
     async updateProfile(data: Partial<User>) {
       try {
         const user = await authAPI.updateProfile(data)
@@ -121,9 +121,9 @@ export const useAuthStore = defineStore('auth', {
         }
         return { success: true }
       } catch (error: any) {
-        return { 
-          success: false, 
-          message: error.response?.data?.message || '更新失败' 
+        return {
+          success: false,
+          message: error.response?.data?.message || '更新失败'
         }
       }
     }
