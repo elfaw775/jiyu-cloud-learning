@@ -1,5 +1,7 @@
 <template>
+    <ScrollContainer class="chat-page" height="100vh">
   <div class="chat-page-wide">
+    
     <!-- 侧边栏：历史会话 -->
     <aside :class="['sidebar', { collapsed: sidebarCollapsed }]">
       <div class="sidebar-header">
@@ -9,9 +11,9 @@
       </div>
       <div class="history-list" v-if="!sidebarCollapsed">
         <div
-          v-for="item in chatHistory"
+          v-for="item in conversations"
           :key="item.id"
-          :class="['history-item', { active: item.id === currentChatId }]"
+          :class="['history-item', { active: item.id === currentConversationId }]"
           @click="switchChat(item.id)"
         >
           <el-icon><ChatDotRound /></el-icon>
@@ -24,14 +26,14 @@
       <div class="chat-container-wide">
         <div class="chat-messages-wide" ref="chatMessagesRef">
           <div 
-            v-for="(msg, msgIndex) in currentChat?.messages || []" 
+            v-for="(msg, msgIndex) in messages" 
             :key="msgIndex" 
-            :class="['message', msg.sender === 'user' ? 'user-message' : 'bot-message']"
+            :class="['message', msg.type === 'user' ? 'user-message' : 'bot-message']"
           >
             <div class="message-content" v-html="renderMessage(msg.content)"></div>
             <div class="message-time">{{ formatTime(msg.timestamp) }}</div>
           </div>
-          <div v-if="currentChat?.isTyping" class="bot-typing">
+          <div v-if="loading" class="bot-typing">
             <div class="typing-indicator">
               <span></span><span></span><span></span>
             </div>
@@ -44,12 +46,19 @@
             :rows="2"
             placeholder="在这里输入问题..."
             resize="none"
-             :disabled="currentChat?.isTyping"
-            @keyup.enter.exact="sendUserMessage(currentChat.id, $event)"
+            :disabled="loading"
+            @keyup.enter.exact="sendUserMessage"
           />
           <div class="input-buttons">
-            <el-button :icon="Picture" circle @click="openImageUpload(currentChat.id)" />
-            <el-button type="primary" @click="sendUserMessage(currentChat.id)">发送</el-button>
+            <el-button :icon="Picture" circle @click="openImageUpload" />
+            <el-button 
+              :icon="Microphone" 
+              circle 
+              @click="toggleVoice"
+              :type="voiceEnabled ? 'primary' : 'default'"
+              :loading="isPlaying"
+            />
+            <el-button type="primary" @click="sendUserMessage" :loading="loading">发送</el-button>
             <input 
               type="file" 
               ref="fileInput" 
@@ -58,142 +67,80 @@
               @change="handleImageUpload"
             />
           </div>
+          <span></span><span></span><span></span>
         </div>
       </div>
     </main>
+ 
   </div>
+</ScrollContainer>
+
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted, nextTick, watch } from 'vue'
-import { ChatDotRound, Plus, Menu, ArrowRight, Picture } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
+import { ChatDotRound, Plus, Menu, ArrowRight, Picture, Microphone } from '@element-plus/icons-vue'
 import dayjs from 'dayjs'
 import MarkdownIt from 'markdown-it'
+import markdownItKatex from 'markdown-it-katex'
+import 'katex/dist/katex.min.css'
+import { useChatStore } from '@/stores/chat'
 
-// 聊天历史与当前会话
+const chatStore = useChatStore()
 const sidebarCollapsed = ref(false)
-const chatHistory = ref<Array<any>>([])
-const currentChatId = ref('')
-const inputText = ref('') // 全局输入框内容
-
-const md = new MarkdownIt({ html: true, linkify: true, typographer: true })
-
+const md = new MarkdownIt({ html: true, linkify: true, typographer: true }).use(markdownItKatex)
 const chatMessagesRef = ref<HTMLElement | null>(null)
 const fileInput = ref<HTMLInputElement | null>(null)
 
-// 聊天窗口结构
-function createChat(title = '新会话') {
-  return {
-    id: Date.now().toString() + Math.random().toString(36).slice(2),
-    title,
-    messages: [],
-    isTyping: false
-  }
-}
-
-const currentChat = computed(() => chatHistory.value.find(c => c.id === currentChatId.value) || chatHistory.value[0])
+// 侧边栏会话列表
+const conversations = computed(() => chatStore.conversations)
+const currentConversationId = computed(() => chatStore.currentConversationId)
+const messages = computed(() => chatStore.messages)
+const inputText = computed({
+  get: () => chatStore.inputText,
+  set: v => chatStore.inputText = v
+})
+const loading = computed(() => chatStore.loading)
+const voiceEnabled = computed(() => chatStore.voiceEnabled)
+const isPlaying = computed(() => chatStore.isPlaying)
 
 function createNewChat() {
-  const chat = createChat('新会话')
-  chatHistory.value.unshift(chat)
-  currentChatId.value = chat.id
-  inputText.value = '' // 创建新会话时清空输入框
-  nextTick(scrollToBottom)
+  chatStore.startConversation('新建一个对话')
 }
 
 function switchChat(id: string) {
-  currentChatId.value = id
-  inputText.value = '' // 切换会话时清空输入框
-  nextTick(scrollToBottom)
+  chatStore.switchConversation(id)
 }
 
 function toggleSidebar() {
   sidebarCollapsed.value = !sidebarCollapsed.value
 }
 
-function sendUserMessage(chatId: string, event?: KeyboardEvent) {
-  if (event) {
-    if (event.key === 'Enter' && !event.shiftKey) {
-      event.preventDefault()
-    } else {
-      return
-    }
+async function sendUserMessage() {
+  if (!inputText.value.trim() || loading.value) return
+  if (!currentConversationId.value) {
+    await chatStore.startConversation(inputText.value)
+  } else {
+    await chatStore.continueConversation(inputText.value)
   }
-  const chat = chatHistory.value.find(c => c.id === chatId)
-  if (!chat || !inputText.value.trim()) return
-  const userMessage = inputText.value.trim()
-  chat.messages.push({
-    content: userMessage,
-    sender: 'user',
-    timestamp: new Date()
-  })
-  inputText.value = '' // 发送后清空输入框
-  chat.isTyping = true
+  chatStore.inputText = ''
   nextTick(scrollToBottom)
-  setTimeout(() => {
-    chat.messages.push({
-      content: generateBotResponse(userMessage),
-      sender: 'bot',
-      timestamp: new Date()
-    })
-    chat.isTyping = false
-    nextTick(scrollToBottom)
-  }, 1200)
 }
 
 function renderMessage(content: string) {
   return md.render(content)
 }
 
-function formatTime(date: Date) {
+function formatTime(date: string | number | Date) {
   return dayjs(date).format('HH:mm')
 }
 
-function openImageUpload(chatId: string) {
+function openImageUpload() {
   if (fileInput.value) fileInput.value.click()
 }
 
-function handleImageUpload(event: Event) {
-  const target = event.target as HTMLInputElement
-  if (!target.files || target.files.length === 0) return
-  const file = target.files[0]
-  const reader = new FileReader()
-  reader.onload = (e) => {
-    const imageData = e.target?.result as string
-    if (imageData) {
-      const chat = currentChat.value
-      chat.messages.push({
-        content: `![上传的图片](${imageData})`,
-        sender: 'user',
-        timestamp: new Date()
-      })
-      chat.isTyping = true
-      nextTick(scrollToBottom)
-      setTimeout(() => {
-        chat.messages.push({
-          content: '我已收到您上传的图片，请问有什么可以帮助您的？',
-          sender: 'bot',
-          timestamp: new Date()
-        })
-        chat.isTyping = false
-        nextTick(scrollToBottom)
-      }, 1500)
-    }
-    if (target) target.value = ''
-  }
-  reader.readAsDataURL(file)
-}
-
-function generateBotResponse(userMessage: string) {
-  const responses = [
-    '我理解您的问题，这个知识点涉及到...',
-    '根据我的理解，您问的是关于...',
-    '这个问题的答案是...',
-    '我可以从以下几个方面为您解答...',
-    '这是一个很好的问题！让我为您详细解答...'
-  ]
-  return responses[Math.floor(Math.random() * responses.length)]
+function handleImageUpload() {
+  // 可后续扩展为图片上传到后端
 }
 
 function scrollToBottom() {
@@ -204,12 +151,30 @@ function scrollToBottom() {
   })
 }
 
-onMounted(() => {
-  // 初始化一条会话
-  if (chatHistory.value.length === 0) {
-    createNewChat()
+function toggleVoice() {
+  chatStore.toggleVoice()
+}
+
+onMounted(async () => {
+  await chatStore.fetchConversations()
+  if (chatStore.conversations.length > 0) {
+    await chatStore.switchConversation(chatStore.conversations[0].id)
   }
   nextTick(scrollToBottom)
+})
+
+watch(messages, (newMessages, oldMessages) => {
+  if (newMessages.length > oldMessages.length) {
+    // 有新消息时，检查最后一条是否是 AI 回复
+    const lastMessage = newMessages[newMessages.length - 1]
+    if (lastMessage && lastMessage.type !== 'user' && voiceEnabled.value) {
+      // 延迟播放，确保消息已渲染
+      setTimeout(() => {
+        chatStore.playAudio(lastMessage.content)
+      }, 500)
+    }
+  }
+  scrollToBottom()
 })
 </script>
 
@@ -297,14 +262,25 @@ onMounted(() => {
   box-shadow: 0 1px 2px rgba(0,0,0,0.03);
   background: #fff;
   &.user-message {
-    background: #e3f2fd;
+    background: #007AFF;
+    color: #fff;
     margin-left: auto;
     border-bottom-right-radius: 5px;
+    box-shadow: 0 2px 8px rgba(0,122,255,0.3);
+    .message-time {
+      color: rgba(255,255,255,0.8);
+    }
   }
   &.bot-message {
-    background: #fff;
+    background: #f8f9fa;
+    color: #333;
+    margin-right: auto;
     border-bottom-left-radius: 5px;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border: 1px solid #e9ecef;
+    .message-time {
+      color: #6c757d;
+    }
   }
   .message-content {
     word-break: break-word;
@@ -314,7 +290,6 @@ onMounted(() => {
   }
   .message-time {
     font-size: 12px;
-    color: #999;
     margin-top: 5px;
     text-align: right;
   }

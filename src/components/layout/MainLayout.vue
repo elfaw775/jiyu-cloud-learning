@@ -1,9 +1,9 @@
 <template>
   <div class="main-layout">
-  <ScrollContainer class="chat-page" height="100vh">
+
     <!-- 顶部工具栏 -->
     <div class="toolbar">
-      <img src="@/assets/logo.svg" alt="Logo" class="toolbar-logo">
+      <img src="@/assets/jiyu.jpg" alt="Logo" class="toolbar-logo">
       <div class="buttons">
         <el-button text @click="navigateTo('/chat')" :class="{ active: $route.path === '/chat' }">智能问答</el-button>
         <el-button text @click="navigateTo('/daily-practice')" :class="{ active: $route.path === '/daily-practice' }">每日刷题</el-button>
@@ -52,6 +52,9 @@
     <div class="main-content" :class="{ 'sidebar-open': sidebarOpen }">
       <router-view />
     </div>
+    
+    <!-- 桌宠组件 -->
+    <DesktopPet />
     
     <!-- 功能即将推出提示框 -->
     <el-dialog
@@ -153,7 +156,7 @@
         <p>提供丰富的学习资源，包括教材解析、知识点总结、解题技巧等。</p>
       </div>
     </el-dialog>
-      </ScrollContainer >
+    
   </div>
 </template>
 
@@ -166,10 +169,11 @@ import { Setting } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import dayjs from 'dayjs'
 import type { FormInstance } from 'element-plus'
-import ScrollContainer from '@/components/common/ScrollContainer.vue'
+import DesktopPet from '@/components/DesktopPet.vue'
+//import ScrollContainer from '@/components/common/ScrollContainer.vue'
 
 // 路由和状态
-const router = useRouter()
+const router = useRouter();
 const authStore = useAuthStore()
 const appStore = useAppStore()
 const username = computed(() => authStore.username || '用户')

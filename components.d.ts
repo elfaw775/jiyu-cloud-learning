@@ -10,6 +10,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     ChatWindow: typeof import('./src/components/chat/ChatWindow.vue')['default']
     DeskPet: typeof import('./src/components/common/DeskPet.vue')['default']
+    DesktopPet: typeof import('./src/components/DesktopPet.vue')['default']
     ElAvatar: typeof import('element-plus/es')['ElAvatar']
     ElBacktop: typeof import('element-plus/es')['ElBacktop']
     ElButton: typeof import('element-plus/es')['ElButton']

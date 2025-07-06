@@ -32,3 +32,25 @@
 .el-table td {
     background: transparent !important;
 }
+
+.main-layout,
+.main-content,
+.chat-page-wide,
+.chat-main,
+.chat-container-wide,
+.el-dialog {
+    background: url('./bg.jpg') center center/cover no-repeat !important;
+    box-shadow: none !important;
+}
+
+.message {
+    background: #fff !important;
+}
+
+.user-message {
+    background: #bbdefb !important;
+}
+
+.bot-message {
+    background: #e3f2fd !important;
+}

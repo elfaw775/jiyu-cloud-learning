@@ -46,12 +46,12 @@ export const chatAPI = {
           success: false
         }
       }
-    } catch (error: any) {
-      console.error('Send normal message error:', error)
-      return {
-        message: error.response?.data?.message || '发送失败',
-        success: false
+    } catch (error: unknown) {
+      if (typeof error === 'object' && error && 'response' in error) {
+        // @ts-expect-error axios error.response 类型不确定
+        return { message: error.response?.data?.message || '发送失败', success: false }
       }
+      return { message: '发送失败', success: false }
     }
   },
 
@@ -88,12 +88,12 @@ export const chatAPI = {
           success: false
         }
       }
-    } catch (error: any) {
-      console.error('Send feynman message error:', error)
-      return {
-        message: error.response?.data?.message || '发送失败',
-        success: false
+    } catch (error: unknown) {
+      if (typeof error === 'object' && error && 'response' in error) {
+        // @ts-expect-error axios error.response 类型不确定
+        return { message: error.response?.data?.message || '发送失败', success: false }
       }
+      return { message: '发送失败', success: false }
     }
   },
 
@@ -132,12 +132,12 @@ export const chatAPI = {
           success: false
         }
       }
-    } catch (error: any) {
-      console.error('Send correction message error:', error)
-      return {
-        message: error.response?.data?.message || '发送失败',
-        success: false
+    } catch (error: unknown) {
+      if (typeof error === 'object' && error && 'response' in error) {
+        // @ts-expect-error axios error.response 类型不确定
+        return { message: error.response?.data?.message || '发送失败', success: false }
       }
+      return { message: '发送失败', success: false }
     }
   },
 
@@ -164,12 +164,12 @@ export const chatAPI = {
           success: false
         }
       }
-    } catch (error: any) {
-      console.error('OCR error:', error)
-      return {
-        message: error.response?.data?.message || 'OCR识别失败',
-        success: false
+    } catch (error: unknown) {
+      if (typeof error === 'object' && error && 'response' in error) {
+        // @ts-expect-error axios error.response 类型不确定
+        return { message: error.response?.data?.message || 'OCR识别失败', success: false }
       }
+      return { message: 'OCR识别失败', success: false }
     }
   },
 
@@ -193,12 +193,12 @@ export const chatAPI = {
           success: false
         }
       }
-    } catch (error: any) {
-      console.error('Get normal history list error:', error)
-      return {
-        message: error.response?.data?.message || '获取历史失败',
-        success: false
+    } catch (error: unknown) {
+      if (typeof error === 'object' && error && 'response' in error) {
+        // @ts-expect-error axios error.response 类型不确定
+        return { message: error.response?.data?.message || '获取历史失败', success: false }
       }
+      return { message: '获取历史失败', success: false }
     }
   },
 
@@ -222,12 +222,12 @@ export const chatAPI = {
           success: false
         }
       }
-    } catch (error: any) {
-      console.error('Get feynman history list error:', error)
-      return {
-        message: error.response?.data?.message || '获取历史失败',
-        success: false
+    } catch (error: unknown) {
+      if (typeof error === 'object' && error && 'response' in error) {
+        // @ts-expect-error axios error.response 类型不确定
+        return { message: error.response?.data?.message || '获取历史失败', success: false }
       }
+      return { message: '获取历史失败', success: false }
     }
   },
 
@@ -251,12 +251,12 @@ export const chatAPI = {
           success: false
         }
       }
-    } catch (error: any) {
-      console.error('Get correction history list error:', error)
-      return {
-        message: error.response?.data?.message || '获取历史失败',
-        success: false
+    } catch (error: unknown) {
+      if (typeof error === 'object' && error && 'response' in error) {
+        // @ts-expect-error axios error.response 类型不确定
+        return { message: error.response?.data?.message || '获取历史失败', success: false }
       }
+      return { message: '获取历史失败', success: false }
     }
   },
 
@@ -283,12 +283,100 @@ export const chatAPI = {
           success: false
         }
       }
-    } catch (error: any) {
-      console.error('Get chat history error:', error)
-      return {
-        message: error.response?.data?.message || '获取历史失败',
-        success: false
+    } catch (error: unknown) {
+      if (typeof error === 'object' && error && 'response' in error) {
+        // @ts-expect-error axios error.response 类型不确定
+        return { message: error.response?.data?.message || '获取历史失败', success: false }
       }
+      return { message: '获取历史失败', success: false }
     }
-  }
+  },
+
+  // 新增：获取所有会话
+  async getConversations(token: string) {
+    try {
+      const response = await api.get('/chat/conversations', {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      return response.data
+    } catch (error: unknown) {
+      if (typeof error === 'object' && error && 'response' in error) {
+        // @ts-expect-error axios error.response 类型不确定
+        return { message: error.response?.data?.message || '获取会话列表失败', success: false }
+      }
+      return { message: '获取会话列表失败', success: false }
+    }
+  },
+
+  // 新增：新建会话
+  async startConversation(token: string, userinfo: string) {
+    try {
+      const response = await api.post('/chat/normal', { userinfo }, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      return response.data
+    } catch (error: unknown) {
+      if (typeof error === 'object' && error && 'response' in error) {
+        // @ts-expect-error axios error.response 类型不确定
+        return { message: error.response?.data?.message || '新建会话失败', success: false }
+      }
+      return { message: '新建会话失败', success: false }
+    }
+  },
+
+  // 新增：继续会话
+  async continueConversation(token: string, conversation_id: string, userinfo: string) {
+    try {
+      const response = await api.post('/chat/normal', { conversation_id, userinfo }, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      return response.data
+    } catch (error: unknown) {
+      if (typeof error === 'object' && error && 'response' in error) {
+        // @ts-expect-error axios error.response 类型不确定
+        return { message: error.response?.data?.message || '继续会话失败', success: false }
+      }
+      return { message: '继续会话失败', success: false }
+    }
+  },
+
+  // 新增：获取会话历史
+  async getConversationHistory(token: string, conversation_id: string) {
+    try {
+      const response = await api.get(`/chat/conversations/${conversation_id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      return response.data
+    } catch (error: unknown) {
+      if (typeof error === 'object' && error && 'response' in error) {
+        // @ts-expect-error axios error.response 类型不确定
+        return { message: error.response?.data?.message || '获取历史失败', success: false }
+      }
+      return { message: '获取历史失败', success: false }
+    }
+  },
+
+  // 新增：TTS 语音合成
+  async synthesizeSpeech(data: {
+    text: string
+    voice?: string
+    speed?: number
+    volume?: number
+  }) {
+    try {
+      const response = await api.post('/tts/synthesize', {
+        text: data.text,
+        voice: data.voice || 'yige',
+        speed: data.speed || 50,
+        volume: data.volume || 50
+      })
+      return response.data
+    } catch (error: unknown) {
+      if (typeof error === 'object' && error && 'response' in error) {
+        // @ts-expect-error axios error.response 类型不确定
+        return { message: error.response?.data?.message || '语音合成失败', success: false }
+      }
+      return { message: '语音合成失败', success: false }
+    }
+  },
 }
