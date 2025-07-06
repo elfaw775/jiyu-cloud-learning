@@ -85,12 +85,15 @@ import MarkdownIt from 'markdown-it'
 import markdownItKatex from 'markdown-it-katex'
 import 'katex/dist/katex.min.css'
 import { useChatStore } from '@/stores/chat'
+import { useRoute, useRouter } from 'vue-router'
 
 const chatStore = useChatStore()
 const sidebarCollapsed = ref(false)
 const md = new MarkdownIt({ html: true, linkify: true, typographer: true }).use(markdownItKatex)
 const chatMessagesRef = ref<HTMLElement | null>(null)
 const fileInput = ref<HTMLInputElement | null>(null)
+const route = useRoute()
+const router = useRouter()
 
 // 侧边栏会话列表
 const conversations = computed(() => chatStore.conversations)
@@ -157,6 +160,13 @@ function toggleVoice() {
 
 onMounted(async () => {
   await chatStore.fetchConversations()
+  // 检查是否有 summary query
+  if (route.query.summary) {
+    await chatStore.startConversation(String(route.query.summary))
+    // 清除 query，防止刷新重复触发
+    router.replace({ path: '/chat' })
+    return
+  }
   if (chatStore.conversations.length > 0) {
     await chatStore.switchConversation(chatStore.conversations[0].id)
   }

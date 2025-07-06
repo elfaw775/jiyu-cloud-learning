@@ -58,16 +58,17 @@
             </el-button>
           </el-form-item>
 
-          <!-- 开发测试用按钮，用于绕过登录验证 -->
+         
           <el-form-item>
-            <el-button
+             <!-- 开发测试用按钮，用于绕过登录验证 -->
+            <!-- <el-button
               type="warning"
               size="large"
               @click="devBypassLogin"
               style="width: 100%"
             >
               开发测试（绕过登录）
-            </el-button>
+            </el-button> -->
           </el-form-item>
         </el-form>
 
@@ -153,33 +154,33 @@ const handleLogin = async () => {
   }
 }
 
-// 开发测试用，绕过登录验证
-const devBypassLogin = () => {
-  // 模拟登录成功的状态
-  authStore.$patch({
-    token: 'dev-mock-token',
-    isAuthenticated: true,
-    user: {
-      id: 'dev-user-id',
-      username: '测试用户',
-      email: 'test@example.com',
-      avatar: '',
-      level: 3,
-      experience: 245,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    }
-  })
+// // 开发测试用，绕过登录验证
+// const devBypassLogin = () => {
+//   // 模拟登录成功的状态
+//   authStore.$patch({
+//     token: 'dev-mock-token',
+//     isAuthenticated: true,
+//     user: {
+//       id: 'dev-user-id',
+//       username: '测试用户',
+//       email: 'test@example.com',
+//       avatar: '',
+//       level: 3,
+//       experience: 245,
+//       createdAt: new Date().toISOString(),
+//       updatedAt: new Date().toISOString()
+//     }
+//   })
   
 
-  // 保存到localStorage，使刷新页面后状态仍然保持
-  localStorage.setItem('jiyu_token', 'dev-mock-token')
-  localStorage.setItem('jiyu_user', JSON.stringify(authStore.user))
-  localStorage.removeItem('jiyu_welcome_shown')
+//   // 保存到localStorage，使刷新页面后状态仍然保持
+//   localStorage.setItem('jiyu_token', 'dev-mock-token')
+//   localStorage.setItem('jiyu_user', JSON.stringify(authStore.user))
+//   localStorage.removeItem('jiyu_welcome_shown')
 
-  ElMessage.success('测试模式：已绕过登录验证')
-  router.push('/chat')
-}
+//   ElMessage.success('测试模式：已绕过登录验证')
+//   router.push('/chat')
+// }
 </script>
 
 <style scoped lang="scss">
