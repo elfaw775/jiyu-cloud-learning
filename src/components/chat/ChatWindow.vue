@@ -378,15 +378,6 @@ const stopDrag = (e: MouseEvent) => {
   isDragging = false
   document.removeEventListener('mousemove', onDrag)
   document.removeEventListener('mouseup', stopDrag)
-  
-  // 更新store中的位置
-  if (windowRef.value) {
-    const newPosition = {
-      left: windowRef.value.style.left,
-      top: windowRef.value.style.top
-    }
-    chatStore.updateWindowPosition(props.window.id, newPosition)
-  }
 }
 
 // 监听消息变化，自动滚动到底部

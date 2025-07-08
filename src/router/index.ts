@@ -110,7 +110,7 @@ router.beforeEach(async (to, from, next) => {
   
   // 已登录用户访问登录页面，重定向到chat
   if ((to.path === '/login' || to.path === '/register') && token) {
-    if (to.path !== '/chat') {
+    if ((to.path as string) !== '/chat') {
       console.log('已登录用户，跳转到chat')
       next('/chat')
       return

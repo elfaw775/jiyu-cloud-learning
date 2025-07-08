@@ -199,7 +199,6 @@ import type { Component } from 'vue'
 import MarkdownIt from 'markdown-it'
 import mk from 'markdown-it-katex'
 import 'katex/dist/katex.min.css'
-import { useChatStore } from '@/stores/chat'
 
 const md = MarkdownIt({ html: true }).use(mk)
 
@@ -224,7 +223,6 @@ interface Category {
 }
 
 const router = useRouter()
-const chatStore = useChatStore()
 
 // 数据状态
 const todayCompleted = ref(0)
@@ -576,10 +574,7 @@ const progressPercentage = computed(() => {
 
 const isCorrect = computed(() => {
   if (!currentQuestion.value) return false
-  if (currentQuestion.value.type === 'choice') {
-    return userAnswer.value === currentQuestion.value.correctAnswer
-  }
-  return false // 编程题需要后端判断
+  return userAnswer.value === currentQuestion.value.correctAnswer
 })
 
 // 方法
@@ -611,8 +606,10 @@ const submitAnswer = () => {
     showExplanation.value = true
     submitting.value = false
     // 记录答题
-    currentQuestion.value.answered = true
-    currentQuestion.value.userAnswer = userAnswer.value
+    if (currentQuestion.value) {
+      currentQuestion.value.answered = true
+      currentQuestion.value.userAnswer = userAnswer.value
+    }
     if (isCorrect.value) {
       ElMessage.success('恭喜答对了！')
       totalPoints.value += 10
@@ -633,7 +630,7 @@ const previousQuestion = () => {
 }
 
 const nextQuestion = () => {
-  if (currentQuestionIndex.value < selectedCategory.value.questions.length - 1) {
+  if (selectedCategory.value && currentQuestionIndex.value < selectedCategory.value.questions.length - 1) {
     currentQuestionIndex.value++
     resetQuestion()
   }
@@ -651,7 +648,8 @@ const showHint = () => {
 }
 
 const handleSummaryClick = () => {
-  let total = 0, correct = 0, wrongList: string[] = []
+  const wrongList: string[] = []
+  let total = 0, correct = 0
   categories.value.forEach(cat => {
     cat.questions.forEach(q => {
       if (q.answered) {
