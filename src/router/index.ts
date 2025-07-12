@@ -11,7 +11,7 @@ const router = createRouter({
       meta: { requiresAuth: false }
     },
     {
-      path: '/register', 
+      path: '/register',
       name: 'register',
       component: () => import('../views/Register.vue'),
       meta: { requiresAuth: false }
@@ -76,28 +76,17 @@ router.beforeEach(async (to, from, next) => {
     return
   }
   const token = localStorage.getItem('jiyu_token')
-  
+
   // 开发环境变量，设为true可以绕过登录验证
   const DEV_BYPASS_AUTH = true
-  
+
   console.log('路由守卫检查:', {
     to: to.path,
     from: from.path,
     hasToken: !!token,
     devMode: DEV_BYPASS_AUTH
   })
-  
-  // 开发模式，绕过认证
-  // if (DEV_BYPASS_AUTH) {
-  //   if (to.path !== '/chat') {
-  //     next('/chat')
-  //     return
-  //   } else {
-  //     next()
-  //     return
-  //   }
-  // }
-  
+
   // 需要认证的路由
   if (to.meta.requiresAuth) {
     console.log(token)
@@ -107,7 +96,7 @@ router.beforeEach(async (to, from, next) => {
       return
     }
   }
-  
+
   // 已登录用户访问登录页面，重定向到chat
   if ((to.path === '/login' || to.path === '/register') && token) {
     if ((to.path as string) !== '/chat') {
@@ -116,7 +105,7 @@ router.beforeEach(async (to, from, next) => {
       return
     }
   }
-  
+
   next()
 })
 

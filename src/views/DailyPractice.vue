@@ -81,8 +81,8 @@
         </template>
         <el-row :gutter="16">
           <el-col :span="8" v-for="category in categories" :key="category.id">
-            <div 
-              class="category-item" 
+            <div
+              class="category-item"
               :class="{ active: selectedCategory?.id === category.id }"
               @click="selectCategory(category)"
             >
@@ -108,8 +108,8 @@
           <div class="practice-header-content">
             <span>{{ selectedCategory.name }} - 第 {{ currentQuestionIndex + 1 }} 题</span>
             <div class="progress-info">
-              <el-progress 
-                :percentage="progressPercentage" 
+              <el-progress
+                :percentage="progressPercentage"
                 :stroke-width="8"
                 status="primary"
               />
@@ -123,9 +123,9 @@
           <!-- 选择题选项 -->
           <div class="options">
             <el-radio-group v-model="userAnswer" @change="handleAnswerChange">
-              <el-radio 
-                v-for="(option, index) in currentQuestion?.options" 
-                :key="index" 
+              <el-radio
+                v-for="(option, index) in currentQuestion?.options"
+                :key="index"
                 :label="option.key"
                 class="option-item"
               >
@@ -182,9 +182,9 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import ScrollContainer from '@/components/common/ScrollContainer.vue'
-import { 
-  EditPen, 
-  ChatDotRound, 
+import {
+  EditPen,
+  ChatDotRound,
   ArrowLeft,
   Trophy,
   Clock,
@@ -251,7 +251,7 @@ const simpleQuestions = [
     ],
     correctAnswer: 'C',
     explanation: 'x - tan x ~ x^3，k=3。',
-    answered: false,
+    answered: true,
     userAnswer: ''
   },
   {
@@ -265,7 +265,7 @@ const simpleQuestions = [
     ],
     correctAnswer: 'D',
     explanation: '∫₀^∞ x/(1+x^2) dx 发散。',
-    answered: false,
+    answered: true,
     userAnswer: ''
   },
   {
@@ -279,7 +279,7 @@ const simpleQuestions = [
     ],
     correctAnswer: 'A',
     explanation: '利用洛必达法则，答案为4e²。',
-    answered: false,
+    answered: true,
     userAnswer: ''
   },
   {
@@ -293,7 +293,7 @@ const simpleQuestions = [
     ],
     correctAnswer: 'D',
     explanation: '代入求导并计算截距。',
-    answered: false,
+    answered: true,
     userAnswer: ''
   }
 ]
@@ -310,7 +310,7 @@ const middleQuestions = [
     ],
     correctAnswer: 'B',
     explanation: '拐点需二阶导为0，代入可得。',
-    answered: false,
+    answered: true,
     userAnswer: ''
   },
   {
@@ -324,7 +324,7 @@ const middleQuestions = [
     ],
     correctAnswer: 'B',
     explanation: '代入通解形式与原方程对比可得。',
-    answered: false,
+    answered: true,
     userAnswer: ''
   },
   {
@@ -338,7 +338,7 @@ const middleQuestions = [
     ],
     correctAnswer: 'A',
     explanation: '极限为0是相切且曲率相等的充分非必要条件。',
-    answered: false,
+    answered: true,
     userAnswer: ''
   },
   {
@@ -352,7 +352,7 @@ const middleQuestions = [
     ],
     correctAnswer: 'B',
     explanation: '秩的性质，伴随矩阵秩为1。',
-    answered: false,
+    answered: true,
     userAnswer: ''
   },
   {
@@ -366,7 +366,7 @@ const middleQuestions = [
     ],
     correctAnswer: 'B',
     explanation: '链式法则求偏导。',
-    answered: false,
+    answered: true,
     userAnswer: ''
   },
   {
@@ -380,7 +380,7 @@ const middleQuestions = [
     ],
     correctAnswer: 'A',
     explanation: '利用弧长公式计算。',
-    answered: false,
+    answered: true,
     userAnswer: ''
   },
   {
@@ -394,7 +394,7 @@ const middleQuestions = [
     ],
     correctAnswer: 'A',
     explanation: '代数余子式计算。',
-    answered: false,
+    answered: true,
     userAnswer: ''
   },
   {
@@ -408,7 +408,7 @@ const middleQuestions = [
     ],
     correctAnswer: 'A',
     explanation: '分式分解后积分。',
-    answered: false,
+    answered: true,
     userAnswer: ''
   }
 ]
@@ -425,7 +425,7 @@ const hardQuestions = [
     ],
     correctAnswer: 'A',
     explanation: '由积分性质可知。',
-    answered: false,
+    answered: true,
     userAnswer: ''
   },
   {
@@ -439,7 +439,7 @@ const hardQuestions = [
     ],
     correctAnswer: 'A',
     explanation: '规范形由特征值符号决定。',
-    answered: false,
+    answered: true,
     userAnswer: ''
   },
   {
@@ -453,7 +453,7 @@ const hardQuestions = [
     ],
     correctAnswer: 'D',
     explanation: '换元积分法。',
-    answered: false,
+    answered: true,
     userAnswer: ''
   },
   {
@@ -467,7 +467,7 @@ const hardQuestions = [
     ],
     correctAnswer: 'A',
     explanation: '分步解题，积分与微分结合。',
-    answered: false,
+    answered: true,
     userAnswer: ''
   },
   {
@@ -481,7 +481,7 @@ const hardQuestions = [
     ],
     correctAnswer: 'A',
     explanation: '极坐标变换。',
-    answered: false,
+    answered: true,
     userAnswer: ''
   },
   {
@@ -495,7 +495,7 @@ const hardQuestions = [
     ],
     correctAnswer: 'A',
     explanation: '代入变换消去一阶项。',
-    answered: false,
+    answered: true,
     userAnswer: ''
   },
   {
@@ -509,7 +509,7 @@ const hardQuestions = [
     ],
     correctAnswer: 'B',
     explanation: '拉格朗日中值定理与二阶导性质。',
-    answered: false,
+    answered: true,
     userAnswer: ''
   },
   {
@@ -523,7 +523,7 @@ const hardQuestions = [
     ],
     correctAnswer: 'A',
     explanation: '相似矩阵的特征值与变换。',
-    answered: false,
+    answered: true,
     userAnswer: ''
   }
 ]
@@ -912,12 +912,12 @@ function renderMd(content: string) {
     flex-direction: column;
     gap: 15px;
   }
-  
+
   .header-right {
     width: 100%;
     justify-content: center;
   }
-  
+
   .daily-practice-container {
     padding: 10px;
   }

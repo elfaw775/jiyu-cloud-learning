@@ -38,6 +38,13 @@
         >
           添加任务
         </el-button>
+        <el-button
+          type="primary"
+          class="ai-button"
+          @click="addNewTask_rag"
+        >
+          智能规划
+        </el-button>
       </div>
 
       <div class="todo-list">
@@ -80,11 +87,10 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
 import ScrollContainer from '@/components/common/ScrollContainer.vue'
-import { Calendar, ChatDotRound, ArrowLeft } from '@element-plus/icons-vue'
+import { usePlanningStore } from '@/stores/planning'
 
-const router = useRouter()
+const planningStore = usePlanningStore();
 
 interface Task {
   text: string
@@ -118,6 +124,24 @@ const addNewTask = () => {
     saveTasks()
   }
 }
+//todo:向rag申请新任务
+const addNewTask_rag = async () => {
+  // 等待异步获取规划
+  await planningStore.getPlanning();
+  // 规划内容保存在 planningStore.planning
+  if (planningStore.planning) {
+    // 用正则分割 1. ... 2. ... 3. ...
+    const items = planningStore.planning.split(/\d+\.\s*/).filter(item => item.trim())
+    items.forEach(item => {
+      tasks.value.push({
+        text: item.trim(),
+        completed: false
+      })
+    })
+    newTaskText.value = ''
+    saveTasks()
+  }
+}
 
 const toggleTask = (index: number) => {
   tasks.value[index].completed = !tasks.value[index].completed
@@ -142,6 +166,17 @@ const loadTasks = () => {
 
 onMounted(() => {
   loadTasks()
+  // 每日零点自动清空规划内容
+  const now = new Date()
+  const nextMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0, 0)
+  const msToMidnight = nextMidnight.getTime() - now.getTime()
+  setTimeout(() => {
+    planningStore.planning = ''
+    // 之后每天0点继续清空
+    setInterval(() => {
+      planningStore.planning = ''
+    }, 24 * 60 * 60 * 1000)
+  }, msToMidnight)
 })
 </script>
 
@@ -154,6 +189,7 @@ onMounted(() => {
 
 .planning-header {
   margin-bottom: 32px;
+}
 
   .header-content {
     display: flex;
@@ -191,7 +227,7 @@ onMounted(() => {
     margin: 0;
     font-size: 14px;
   }
-}
+
 
 .todo-app {
   max-width: 800px;
@@ -236,15 +272,15 @@ onMounted(() => {
   flex: 1;
 }
 
-.todo-input :deep(.el-input__inner) {
+.todo-input :deep(.el-input__outer) {
   padding: 1rem;
-  border: 2px solid #e0e0e0;
+  border: none;
   border-radius: 12px;
   font-size: 1rem;
   transition: all 0.3s ease;
 }
 
-.todo-input :deep(.el-input__inner):focus {
+.todo-input :deep(.el-input__outer):focus {
   border-color: var(--primary-color);
   box-shadow: 0 0 8px rgba(94, 114, 235, 0.3);
 }
@@ -261,6 +297,21 @@ onMounted(() => {
   transform: translateY(-2px);
   box-shadow: 0 6px 12px rgba(94, 114, 235, 0.3);
 }
+.ai-button {
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background-color: #5eddeb;
+  color: #fff;
+  border: none;
+}
+
+.ai-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(94, 228, 235, 0.313);
+}
 
 .todo-list {
   margin: 1.5rem 0;
@@ -276,6 +327,7 @@ onMounted(() => {
   border-radius: 12px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   transition: all 0.3s ease;
+
 }
 
 .item:hover {
@@ -295,6 +347,7 @@ onMounted(() => {
 .controls {
   display: flex;
   gap: 0.8rem;
+
 }
 
 .progress-container {

@@ -28,7 +28,7 @@
           <div 
             v-for="(msg, msgIndex) in messages" 
             :key="msgIndex" 
-            :class="['message', msg.type === 'user' ? 'user-message' : 'bot-message']"
+            :class="['message', msg.role === 'user' ? 'user-message' : 'bot-message']"
           >
             <div class="message-content" v-html="renderMessage(msg.content)"></div>
             <div class="message-time">{{ formatTime(msg.timestamp) }}</div>
